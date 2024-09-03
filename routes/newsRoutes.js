@@ -3,8 +3,10 @@ import {
   createNews,
   deleteAllNews,
   deleteNewsById,
+  filterNews,
   getAllNews,
   getNewsById,
+  limitNews,
   searchNews,
   updateNewsById,
 } from "../controllers/newsController.js";
@@ -25,6 +27,8 @@ router.get("/:id", getNewsById);
 router.put("/:id", updateNewsById);
 router.delete("/:id", deleteNewsById);
 router.delete("/", deleteAllNews);
-router.get("/sg/search", searchNews);
+router.get("/search", searchNews);
+router.get("/", filterNews);
+router.get("/max", limitNews);
 
 export default router;

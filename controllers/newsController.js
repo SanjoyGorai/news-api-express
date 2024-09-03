@@ -3,7 +3,6 @@ import News from "../models/newsModel.js";
 import { validationResult } from "express-validator";
 import { uploadImage } from "../middlewares/upload.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
-import { nanoid } from "nanoid";
 import { Op } from "sequelize";
 
 const createNews = async (req, res) => {
@@ -51,7 +50,7 @@ const getNewsById = async (req, res) => {
     const { id } = req.params;
     const news = await News.findByPk(id);
     if (!news) {
-      return res.status(404).json({ message: "News not found" });
+      return res.status(404).json({ message: "News not found by id" });
     }
     res.status(200).json(news);
   } catch (error) {
@@ -147,6 +146,87 @@ const searchNews = async (req, res) => {
   }
 };
 
+const filterNews = async (req, res) => {
+  try {
+    const { author, title, content } = req.query;
+    console.log("filterNews: ", author, title);
+
+    // Build the query object
+    const query = {};
+
+    if (author) {
+      query.author = { [Op.like]: `%${author}%` };
+    }
+
+    if (title) {
+      query.title = { [Op.like]: `%${title}%` };
+    }
+
+    if (content) {
+      query.content = { [Op.like]: `%${content}%` };
+    }
+
+    const news = await News.findAll({
+      where: query,
+    });
+
+    if (news.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No news found matching your criteria." });
+    }
+
+    res.json(news);
+  } catch (error) {
+    res.status(500).json({
+      message: "An error occurred while filtering news.",
+      error: error.message,
+    });
+  }
+};
+
+const limitNews = async (req, res) => {
+  try {
+    const { author, title, content, limit } = req.query;
+
+    // Build the query object
+    const query = {};
+
+    if (author) {
+      query.author = { [Op.like]: `%${author}%` };
+    }
+
+    if (title) {
+      query.title = { [Op.like]: `%${title}%` };
+    }
+
+    if (content) {
+      query.content = { [Op.like]: `%${content}%` };
+    }
+
+    // Set a default limit if not provided
+    const queryLimit = limit ? parseInt(limit) : 10;
+
+    const news = await News.findAll({
+      where: query,
+      limit: queryLimit, // Apply the limit to the query
+    });
+
+    if (news.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No news found matching your criteria." });
+    }
+
+    res.json(news);
+  } catch (error) {
+    res.status(500).json({
+      message: "An error occurred while filtering news.",
+      error: error.message,
+    });
+  }
+};
+
 export {
   createNews,
   getAllNews,
@@ -155,4 +235,6 @@ export {
   deleteNewsById,
   deleteAllNews,
   searchNews,
+  filterNews,
+  limitNews,
 };
