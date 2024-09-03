@@ -5,6 +5,7 @@ import {
   deleteNewsById,
   getAllNews,
   getNewsById,
+  searchNews,
   updateNewsById,
 } from "../controllers/newsController.js";
 import { upload } from "../middlewares/upload.js";
@@ -24,5 +25,6 @@ router.get("/:id", getNewsById);
 router.put("/:id", updateNewsById);
 router.delete("/:id", deleteNewsById);
 router.delete("/", deleteAllNews);
+router.get("/sg/search", searchNews);
 
 export default router;

@@ -4,6 +4,7 @@ import { validationResult } from "express-validator";
 import { uploadImage } from "../middlewares/upload.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { nanoid } from "nanoid";
+import { Op } from "sequelize";
 
 const createNews = async (req, res) => {
   const errors = validationResult(req);
@@ -119,6 +120,33 @@ const deleteAllNews = async (req, res) => {
   }
 };
 
+const searchNews = async (req, res) => {
+  const { query } = req.query;
+  console.log("search query: ", query);
+
+  try {
+    const news = await News.findAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.like]: `%${query}%` } },
+          { author: { [Op.like]: `%${query}%` } },
+          { content: { [Op.like]: `%${query}%` } },
+        ],
+      },
+    });
+
+    if (news.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No matching news articles found" });
+    }
+
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred during the search" });
+  }
+};
+
 export {
   createNews,
   getAllNews,
@@ -126,4 +154,5 @@ export {
   updateNewsById,
   deleteNewsById,
   deleteAllNews,
+  searchNews,
 };
