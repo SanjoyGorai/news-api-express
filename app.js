@@ -11,6 +11,6 @@ cleanUploadsDir();
 ensureUploadsDirExists();
 
 app.use(express.json());
-app.use("/api/v1", newsRoutes);
+app.use("/api/v1/news", newsRoutes);
 
 export default app;

@@ -75,9 +75,7 @@ const updateNewsById = async (req, res) => {
 
     if (req.file) {
       const webpImagePath = await uploadImage(req.file);
-      const result = await cloudinary.uploader.upload(webpImagePath, {
-        public_id: `news/${nanoid()}`,
-      });
+      const result = await uploadToCloudinary(webpImagePath);
       req.body.imageUrl = result.secure_url;
 
       // Delete the image from the local server
