@@ -1,5 +1,11 @@
 import express from "express";
-import { createNews, getAllNews } from "../controllers/newsController.js";
+import {
+  createNews,
+  deleteAllNews,
+  deleteNewsById,
+  getAllNews,
+  getNewsById,
+} from "../controllers/newsController.js";
 import { upload } from "../middlewares/upload.js";
 import { newsValidationRules, validate } from "../middlewares/validators.js";
 
@@ -14,5 +20,8 @@ router.post(
 );
 
 router.get("/news", getAllNews);
+router.get("/news/:id", getNewsById);
+router.delete("/news/:id", deleteNewsById);
+router.delete("/news", deleteAllNews);
 
 export default router;

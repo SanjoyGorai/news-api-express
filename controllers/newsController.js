@@ -45,7 +45,87 @@ const getAllNews = async (req, res) => {
   }
 };
 
-// Other CRUD methods (getAllNews, getNewsById, updateNewsById, deleteNewsById, deleteAllNews) will follow a similar pattern
-export { createNews, getAllNews };
+const getNewsById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const news = await News.findByPk(id);
+    if (!news) {
+      return res.status(404).json({ message: "News not found" });
+    }
+    res.status(200).json(news);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the news" });
+  }
+};
 
-// export { createNews, getAllNews, getNewsById, updateNewsById, deleteNewsById, deleteAllNews };
+const updateNewsById = async (req, res) => {
+  const { id } = req.params;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const news = await News.findByPk(id);
+    if (!news) {
+      return res.status(404).json({ message: "News not found" });
+    }
+
+    if (req.file) {
+      const webpImagePath = await uploadImage(req.file);
+      const result = await cloudinary.uploader.upload(webpImagePath, {
+        public_id: `news/${nanoid()}`,
+      });
+      req.body.imageUrl = result.secure_url;
+
+      // Delete the image from the local server
+      fs.unlinkSync(webpImagePath);
+    }
+
+    await news.update(req.body);
+    res.status(200).json(news);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while updating the news" });
+  }
+};
+
+const deleteNewsById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const news = await News.findByPk(id);
+    if (!news) {
+      return res.status(404).json({ message: "News not found" });
+    }
+
+    await news.destroy();
+    res.status(200).json({ message: "News deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the news" });
+  }
+};
+
+const deleteAllNews = async (req, res) => {
+  try {
+    await News.destroy({ where: {}, truncate: true });
+    res.status(200).json({ message: "All news deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting all news" });
+  }
+};
+
+export {
+  createNews,
+  getAllNews,
+  getNewsById,
+  updateNewsById,
+  deleteNewsById,
+  deleteAllNews,
+};
