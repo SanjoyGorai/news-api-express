@@ -34,5 +34,18 @@ const createNews = async (req, res) => {
   }
 };
 
+const getAllNews = async (req, res) => {
+  try {
+    const news = await News.findAll();
+    res.status(200).json(news);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the news" });
+  }
+};
+
 // Other CRUD methods (getAllNews, getNewsById, updateNewsById, deleteNewsById, deleteAllNews) will follow a similar pattern
-export { createNews };
+export { createNews, getAllNews };
+
+// export { createNews, getAllNews, getNewsById, updateNewsById, deleteNewsById, deleteAllNews };
